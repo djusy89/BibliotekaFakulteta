@@ -9,7 +9,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
 import org.apache.log4j.Logger;
 
 import bean.ClanskaKarta;
@@ -88,6 +87,7 @@ public class KorisnikServlet extends HttpServlet {
 		session = request.getSession(true);
 
 		if (request.getParameter("clanskaKarta") != null) {
+			
 			
 			String idClanskaKarta = request.getParameter(IParameter.CLANSKA_KARTA);
 			String brojClanarine = request.getParameter(IParameter.BROJ_CLANARINE);
