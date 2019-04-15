@@ -56,6 +56,7 @@ public class KnjigaServlet extends HttpServlet {
 		ArrayList<Kategorija> listaKategorija = SifarnikController.preuzmiKategorije();
 		ArrayList<Izdavac> listaIzdavaca = SifarnikController.preuzmiIzdavace();
 		ArrayList<Knjiga> listaKnjiga = SifarnikController.preuzmiKnjige();
+		
 		// akcije za upravljenje sa Objektima tipa Knjiga
 		
 		if(akcija.equalsIgnoreCase("unesiKnjigu")){
@@ -109,7 +110,7 @@ public class KnjigaServlet extends HttpServlet {
 		}
 		if(akcija.equalsIgnoreCase("obrisiKnjigu")){
 			int knjigaId = Integer.parseInt(request.getParameter("knjigaId"));
-			Knjiga knjiga = SifarnikController.obrisiKnjigu(knjigaId);
+			SifarnikController.obrisiKnjigu(knjigaId);
 			
 			session.setAttribute(IParameter.LISTA_KNJIGA, listaKnjiga);
 			session.setAttribute(IParameter.LISTA_KATEGORIJA, listaKategorija);
@@ -155,7 +156,7 @@ public class KnjigaServlet extends HttpServlet {
 		}
 		if(akcija.equalsIgnoreCase("obrisiKategoriju")){
 			int kategorijaId = Integer.parseInt(request.getParameter("kategorijaId"));
-			Kategorija kategorija = SifarnikController.obrisiKategoriju(kategorijaId);
+			SifarnikController.obrisiKategoriju(kategorijaId);
 			
 			session.setAttribute(IParameter.LISTA_KATEGORIJA, listaKategorija);
 
@@ -182,12 +183,14 @@ public class KnjigaServlet extends HttpServlet {
 		
 		session = request.getSession();
 		
+		ArrayList<Kategorija> listaKategorija = SifarnikController.preuzmiKategorije();
+		ArrayList<Izdavac> listaIzdavaca = SifarnikController.preuzmiIzdavace();
+		ArrayList<Knjiga> listaKnjiga = SifarnikController.preuzmiKnjige();
+		
 		// Kategorija:
 		
 		if(request.getParameter(IParameter.KATEGORIJA_PARAM) != null)
 		{
-			String kategorija = request.getParameter(IParameter.KATEGORIJA_PARAM);
-			ArrayList<Kategorija> listaKategorija = SifarnikController.preuzmiKategorije();
 			session.setAttribute(IParameter.LISTA_KATEGORIJA, listaKategorija);
 			logger.info("Lista kategorija koja se prosledjuje dodajKategoriju" + listaKategorija );
 			response.sendRedirect("dodajKategoriju.jsp");
@@ -199,7 +202,6 @@ public class KnjigaServlet extends HttpServlet {
 			String opisKategorije = request.getParameter(IParameter.OPIS_KATEGORIJE);
 			
 			if (StringUtility.isEmptyOrNull(nazivKategorije) || StringUtility.isEmptyOrNull(opisKategorije)){
-				ArrayList<Kategorija> listaKategorija = SifarnikController.preuzmiKategorije();
 				session.setAttribute(IParameter.KATEGORIJA_UNOS_ERROR, IResource.USER_LOGIN_INSERT_ERROR_INFO);
 				session.setAttribute(IParameter.LISTA_KATEGORIJA, listaKategorija);
 				response.sendRedirect("dodajKategoriju.jsp");
@@ -207,15 +209,12 @@ public class KnjigaServlet extends HttpServlet {
 				logger.info("Vrednosti naziva i opisa kategorije" + nazivKategorije + ", " + opisKategorije);
 				Kategorija kategorijaTemp = SifarnikController.napraviKategoriju(nazivKategorije, opisKategorije);
 				if (kategorijaTemp != null) {
-					ArrayList<Kategorija> listaKategorija = SifarnikController.preuzmiKategorije();
-					ArrayList<Izdavac> listaIzdavaca = SifarnikController.preuzmiIzdavace();
 					session.setAttribute(IParameter.LISTA_KATEGORIJA, listaKategorija);
 					session.setAttribute(IParameter.LISTA_IZDAVACA, listaIzdavaca);
 					response.sendRedirect("unesiKnjigu.jsp");
 					
 					logger.info("Vratili listu kategorija: " + listaKategorija);
 				}else {
-					ArrayList<Kategorija> listaKategorija = SifarnikController.preuzmiKategorije();
 					session.setAttribute(IParameter.LISTA_KATEGORIJA, listaKategorija);
 					session.setAttribute(IParameter.KATEGORIJA_DUPLICATE_ERROR, IResource.KATEGORIJA_DUPLICATE_ERROR_INFO);
 					response.sendRedirect("dodajKategoriju.jsp");
@@ -230,9 +229,9 @@ public class KnjigaServlet extends HttpServlet {
 		
 		if(request.getParameter(IParameter.PRETRAGA_KATEGORIJA) != null){
 			String tekstPretrage = request.getParameter("textPretrage");
-			ArrayList<Kategorija> listaKategorija = SifarnikController.pretragaKategorije(tekstPretrage);
+			ArrayList<Kategorija> listaKategorijaPretraga = SifarnikController.pretragaKategorije(tekstPretrage);
 			
-			session.setAttribute(IParameter.LISTA_KATEGORIJA, listaKategorija);
+			session.setAttribute(IParameter.LISTA_KATEGORIJA, listaKategorijaPretraga);
 			response.sendRedirect("pregledKategorija.jsp");
 			logger.info("Response : " + response);
 		}
@@ -240,8 +239,6 @@ public class KnjigaServlet extends HttpServlet {
 		// Knjiga:
 		
 		if(request.getParameter(IParameter.KNJIGA_STRANA) != null){
-			ArrayList<Kategorija> listaKategorija = SifarnikController.preuzmiKategorije();
-			ArrayList<Izdavac> listaIzdavaca = SifarnikController.preuzmiIzdavace();
 			session.setAttribute(IParameter.LISTA_KATEGORIJA, listaKategorija);
 			session.setAttribute(IParameter.LISTA_IZDAVACA, listaIzdavaca);
 
@@ -263,15 +260,11 @@ public class KnjigaServlet extends HttpServlet {
 			if (StringUtility.isEmptyOrNull(nazivKnjige) || StringUtility.isEmptyOrNull(opis) || 
 					StringUtility.isEmptyOrNull(izdanje) || StringUtility.isEmptyOrNull(autor) || StringUtility.isEmptyOrNull(izdavac) || StringUtility.isEmptyOrNull(kategorije)){
 				session.setAttribute(IParameter.KNJIGA_UNOS_ERROR, IResource.USER_LOGIN_INSERT_ERROR_INFO);
-				ArrayList<Kategorija> listaKategorija = SifarnikController.preuzmiKategorije();
-				ArrayList<Izdavac> listaIzdavaca = SifarnikController.preuzmiIzdavace();
 				session.setAttribute(IParameter.LISTA_KATEGORIJA, listaKategorija);
 				session.setAttribute(IParameter.LISTA_IZDAVACA, listaIzdavaca);
 				response.sendRedirect("unesiKnjigu.jsp");
 			}else {
 				Knjiga knjiga = SifarnikController.unesiKnjigu(nazivKnjige, opis, linkIzdavaca, slikaNaslovne, izdanje, autor, izdavac, kategorije);
-				ArrayList<Kategorija> listaKategorija = SifarnikController.preuzmiKategorije();
-				ArrayList<Izdavac> listaIzdavaca = SifarnikController.preuzmiIzdavace();
 				session.setAttribute(IParameter.LISTA_KATEGORIJA, listaKategorija);
 				session.setAttribute(IParameter.LISTA_IZDAVACA, listaIzdavaca);
 				logger.info("unesiKnjigu() - " + knjiga );
@@ -292,10 +285,7 @@ public class KnjigaServlet extends HttpServlet {
 			String izdavac = request.getParameter(IParameter.IZDAVAC_KNJIGE);
 			String kategorije = request.getParameter(IParameter.KATEGORIJA_KNJIGE);
 			
-			Knjiga knjiga = SifarnikController.izmeniKnjigu(knjigaId, nazivKnjige, opis, linkIzdavaca, slikaNaslovne, izdanje, autor, izdavac, kategorije);
-			ArrayList<Knjiga> listaKnjiga = SifarnikController.preuzmiKnjige();
-			ArrayList<Kategorija> listaKategorija = SifarnikController.preuzmiKategorije();
-			ArrayList<Izdavac> listaIzdavaca = SifarnikController.preuzmiIzdavace();
+			SifarnikController.izmeniKnjigu(knjigaId, nazivKnjige, opis, linkIzdavaca, slikaNaslovne, izdanje, autor, izdavac, kategorije);
 			session.setAttribute(IParameter.LISTA_KNJIGA, listaKnjiga);
 			session.setAttribute(IParameter.LISTA_KATEGORIJA, listaKategorija);
 			session.setAttribute(IParameter.LISTA_IZDAVACA, listaIzdavaca);
@@ -306,7 +296,6 @@ public class KnjigaServlet extends HttpServlet {
 		
 		if(request.getParameter(IParameter.IZDAVAC_PARAM) != null)
 		{
-			ArrayList<Izdavac> listaIzdavaca = SifarnikController.preuzmiIzdavace();
 			session.setAttribute(IParameter.LISTA_IZDAVACA, listaIzdavaca);
 			logger.info("Lista kategorija koja se prosledjuje dodajKategoriju" + listaIzdavaca );
 			response.sendRedirect("dodajIzdavaca.jsp");
@@ -323,14 +312,12 @@ public class KnjigaServlet extends HttpServlet {
 			if (StringUtility.isEmptyOrNull(nazivIzdavaca) || StringUtility.isEmptyOrNull(opisIzdavaca) || 
 					StringUtility.isEmptyOrNull(tipKnjige) || StringUtility.isEmptyOrNull(adresaIzdavaca) || StringUtility.isEmptyOrNull(telefonIzdavaca)){
 				
-				ArrayList<Izdavac> listaIzdavaca = SifarnikController.preuzmiIzdavace();
 				session.setAttribute(IParameter.LINK_IZDAVACA, listaIzdavaca);
 				session.setAttribute(IParameter.IZDAVAC_UNOS_ERROR, IResource.USER_LOGIN_INSERT_ERROR_INFO);
 
 				response.sendRedirect("dodajIzdavaca.jsp");
 			}else {
 				Izdavac izdavacTemp = SifarnikController.unesiIzdavaca(nazivIzdavaca, opisIzdavaca, tipKnjige, adresaIzdavaca, telefonIzdavaca);
-				ArrayList<Izdavac> listaIzdavaca = SifarnikController.preuzmiIzdavace();
 				session.setAttribute(IParameter.LINK_IZDAVACA, listaIzdavaca);
 				response.sendRedirect("unesiKnjigu.jsp");
 				
@@ -345,8 +332,6 @@ public class KnjigaServlet extends HttpServlet {
 			
 			if(!StringUtility.isEmptyOrNull(tekstPretrage)){
 				ArrayList<Knjiga> listaKnjigaPretraga =SifarnikController.pretragaKnjiga(tekstPretrage, pretragaKnjige);				
-				ArrayList<Kategorija> listaKategorija = SifarnikController.preuzmiKategorije();
-				ArrayList<Izdavac> listaIzdavaca = SifarnikController.preuzmiIzdavace();
 				
 				session.setAttribute(IParameter.LISTA_KNJIGA, listaKnjigaPretraga);
 				session.setAttribute(IParameter.LISTA_KATEGORIJA, listaKategorija);
@@ -354,9 +339,6 @@ public class KnjigaServlet extends HttpServlet {
 
 				response.sendRedirect("pregledKnjiga.jsp");
 			}else {
-				ArrayList<Knjiga> listaKnjiga = SifarnikController.preuzmiKnjige();
-				ArrayList<Kategorija> listaKategorija = SifarnikController.preuzmiKategorije();
-				ArrayList<Izdavac> listaIzdavaca = SifarnikController.preuzmiIzdavace();
 				
 				session.setAttribute(IParameter.LISTA_KNJIGA, listaKnjiga);
 				session.setAttribute(IParameter.LISTA_KATEGORIJA, listaKategorija);
